@@ -4,11 +4,32 @@ import { useState } from 'react'
 import { BookOpen, Check, ChevronDown, FileText, Info, Printer, RotateCcw, Sparkles } from 'lucide-react'
 
 const defaults = {
-  title: 'Luyện viết chữ a',
+  title: 'English Vocabulary Practice',
   student: 'Nguyễn Minh Anh',
-  className: '2A',
-  practice: 'a a a a a\ná à ả ã ạ\ncon cá · bà · nhà',
+  className: '1A',
+  practice: `book
+ball
+cat`,
 }
+
+const pdfSections = [
+  ['In the school playground', ['book', 'ball', 'bike']],
+  ['In the dining room', ['cake', 'cat', 'cup']],
+  ['At the street market', ['apple', 'hat', 'bag']],
+  ['In the bedroom', ['dog', 'desk', 'door']],
+  ['At the fish and chip shop', ['fish', 'chips', 'chicken']],
+  ['In the classroom', ['pencil', 'pen', 'bell']],
+  ['In the garden', ['gate', 'goat', 'girl']],
+  ['In the park', ['hand', 'horse', 'hair']],
+  ['In the shop', ['clock', 'mop', 'pot']],
+  ['At the zoo', ['mango', 'mother', 'monkey']],
+  ['At the bus stop', ['sun', 'run', 'bus']],
+  ['At the lake', ['lake', 'leaf', 'lemon']],
+  ['In the school canteen', ['banana', 'nuts', 'noodles']],
+  ['In the toy shop', ['turtle', 'tiger', 'teddy bear']],
+  ['At the football match', ['face', 'football', 'father']],
+  ['At home', ['window', 'water', 'wash']],
+] as const
 
 function Field({ label, value, onChange, placeholder }: { label: string; value: string; onChange: (value: string) => void; placeholder?: string }) {
   return (
@@ -88,9 +109,17 @@ export function WorksheetGenerator() {
               <h2>{title || 'Tên bài học'}</h2>
               <div className="paper-info"><span><strong>Họ và tên:</strong> {student || '................................'}</span><span><strong>Lớp:</strong> {className || '........'}</span></div>
             </header>
-            <div className="instruction"><FileText size={13} /> Em hãy viết thật đẹp theo mẫu nhé!</div>
-            <div className={`writing-area ${fontStyle}`}><GridLines /> <div className="practice-text">{(practice || ' ').split('\n').map((line, index) => <div key={`${line}-${index}`}>{line || ' '}</div>)}</div></div>
-            <footer className="paper-footer"><span>Vở Xinh • Phiếu luyện viết</span><span>Trang 1 / 1</span></footer>
+            <div className="instruction"><FileText size={13} /> Trace the words, then write them on your own.</div>
+            <div className="pdf-sections">
+              {pdfSections.map(([location, words], sectionIndex) => (
+                <section className="pdf-section" key={location}>
+                  <h3>{location}</h3>
+                  <div className={`writing-area compact ${fontStyle}`}><GridLines /><div className="practice-text">{words.map((word) => <div key={word}>{word} {word} {word}</div>)}</div></div>
+                  <div className={`writing-area compact answer-lines ${fontStyle}`}><GridLines /><div className="practice-text">{words.map((word) => <div key={`${word}-letters`}>{word[0].toUpperCase()} {word[0].toLowerCase()} {word[0].toLowerCase()}</div>)}</div></div>
+                </section>
+              ))}
+            </div>
+            <footer className="paper-footer"><span>English vocabulary • Trace and write</span><span>16 topics</span></footer>
           </article>
         </div>
       </section>
