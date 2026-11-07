@@ -45,9 +45,9 @@ function GridLines() {
     <svg className="worksheet-grid" aria-hidden="true" preserveAspectRatio="none" viewBox="0 0 800 100">
       <defs>
         <pattern id="writing-grid" width="80" height="100" patternUnits="userSpaceOnUse">
-          <path d="M0 0H80 M0 33.333H80 M0 66.666H80 M0 100H80" fill="none" stroke="#79b7ae" strokeWidth="1.2" />
-          <path d="M0 16.666H80 M0 50H80 M0 83.333H80" fill="none" stroke="#79b7ae" strokeWidth="0.75" strokeDasharray="2.5 3.5" />
-          <path d="M0 0V100 M80 0V100" fill="none" stroke="#79b7ae" strokeWidth="0.55" opacity="0.46" />
+          <path d="M0 0H80 M0 33.333H80 M0 66.666H80 M0 100H80" fill="none" stroke="#9fc9e6" strokeWidth="1.15" />
+          <path d="M0 16.666H80 M0 50H80 M0 83.333H80" fill="none" stroke="#b8d9ed" strokeWidth="0.7" strokeDasharray="2 3" />
+          <path d="M0 0V100 M80 0V100" fill="none" stroke="#e8aeb5" strokeWidth="0.5" opacity="0.52" />
         </pattern>
       </defs>
       <rect width="800" height="100" fill="url(#writing-grid)" />
@@ -114,8 +114,7 @@ export function WorksheetGenerator() {
               {pdfSections.map(([location, words], sectionIndex) => (
                 <section className="pdf-section" key={location}>
                   <h3>{location}</h3>
-                  <div className={`writing-area compact ${fontStyle}`}><GridLines /><div className="practice-text">{words.map((word) => <div key={word}>{word} {word} {word}</div>)}</div></div>
-                  <div className={`writing-area compact answer-lines ${fontStyle}`}><GridLines /><div className="practice-text">{words.map((word) => <div key={`${word}-letters`}>{word[0].toUpperCase()} {word[0].toLowerCase()} {word[0].toLowerCase()}</div>)}</div></div>
+                  <div className={`writing-area compact ${fontStyle}`}><GridLines /><div className="practice-text">{words.map((word) => <div key={word}>{word}</div>)}</div></div>
                 </section>
               ))}
             </div>
