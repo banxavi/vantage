@@ -14,6 +14,20 @@
   margin: 0;
 }
 
+@font-face {
+  font-family: 'HelloFireworks';
+  src: url('/fonts/HelloFireworks.ttf.woff') format('woff'),
+       url('/fonts/HelloFireworks.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+.trace-hf {
+  font-family: 'HelloFireworks', var(--font-trace), sans-serif;
+  user-select: none;
+}
+
 * { box-sizing: border-box; }
 html, body { margin: 0; min-height: 100%; }
 body { background: #eef4f2; color: var(--ink); font-family: Arial, Helvetica, sans-serif; }
@@ -46,11 +60,16 @@ h1 em { color: #4f9d92; font-weight: 400; font-style: italic; }
 select { appearance: none; border: 0; outline: 0; background: transparent; width: 100%; padding: 10px 0; color: #35514e; }
 .select-wrap svg { color: #6fa69d; flex: none; }
 .scope-switch { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; background: #e7f2ef; padding: 4px; border-radius: 9px; margin-bottom: 12px; }
+.scope-switch.three-cols { grid-template-columns: 1fr 1fr 1fr; }
+.scope-switch.three-cols button { padding: 8px 4px; font-size: 11px; }
+.field .scope-switch { margin-bottom: 0; }
 .scope-switch button { border: 0; background: transparent; color: #5d7d77; border-radius: 7px; padding: 8px; font-size: 12px; font-weight: 700; }
 .scope-switch button.on { background: white; color: #1f6f67; box-shadow: 0 1px 3px #1f6f6718; }
-.unit-list { display: flex; flex-direction: column; gap: 4px; max-height: 168px; overflow: auto; margin-bottom: 12px; padding-right: 2px; }
+.lesson-search { margin-bottom: 8px; }
+.unit-list { display: flex; flex-direction: column; gap: 4px; max-height: 240px; overflow: auto; margin-bottom: 12px; padding-right: 2px; }
 .unit-item { display: flex; gap: 8px; align-items: center; width: 100%; text-align: left; border: 1px solid transparent; background: transparent; border-radius: 8px; padding: 7px 8px; color: #3e5c58; }
-.unit-item em { font-style: normal; font-size: 10px; font-weight: 800; color: #c0453b; min-width: 48px; }
+.unit-item em { font-style: normal; font-size: 10px; font-weight: 800; color: #c0453b; min-width: 52px; }
+.unit-item strong { font-size: 13px; color: #1f6f67; min-width: 14px; }
 .unit-item span { font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .unit-item.on { background: #f3faf8; border-color: #d5ebe6; }
 .inline-actions { display: flex; gap: 8px; }
@@ -140,17 +159,18 @@ select { appearance: none; border: 0; outline: 0; background: transparent; width
 .oly-vert { stroke: #d4d4d4; stroke-width: 0.75; }
 .grid-content { position: relative; z-index: 1; }
 .practice-block { position: relative; }
-.practice-model { position: absolute; left: calc(var(--cell) * 0.15); top: calc(var(--cell) * 0.08); z-index: 2; }
-.model-frame { position: relative; width: calc(var(--cell) * var(--model-size, 2.75)); height: calc(var(--cell) * var(--model-size, 2.75)); }
+.practice-model { position: absolute; left: 1.2mm; top: 0.8mm; z-index: 2; }
+.model-frame { position: relative; width: calc(var(--model-col, calc(var(--cell) * 2.75)) - 12mm); height: calc(var(--model-col, calc(var(--cell) * 2.75)) - 12mm); }
+.practice-block.word .model-frame { width: min(calc(var(--cell) * 1.55), calc(var(--model-col) - 14mm)); height: min(calc(var(--cell) * 1.55), calc(var(--model-col) - 14mm)); }
 .octagon { position: absolute; inset: 0; width: 100%; height: 100%; }
 .model-frame-body { position: absolute; inset: 14%; display: grid; place-items: center; }
 .line-icon { width: 86%; height: 86%; }
 .icon-fallback { font-family: var(--font-trace), Nunito, sans-serif; font-weight: 800; font-size: 28px; color: #2a67d8; }
-.practice-line { display: flex; align-items: center; height: var(--cell); padding-left: calc(var(--cell) * 3.15); overflow: visible; }
+.practice-line { display: flex; align-items: center; height: var(--cell); padding-left: calc(var(--model-col, calc(var(--cell) * 3.15)) + 4mm); overflow: visible; }
 .practice-line.full { padding-left: calc(var(--cell) * 0.25); }
 .trace-row { display: flex; align-items: stretch; justify-content: space-evenly; width: 100%; height: 100%; }
 .trace-svg { height: 100%; width: auto; display: block; flex: none; overflow: visible; }
-.trace-svg.model { width: 92%; height: 92%; }
+.trace-svg.model { width: 78%; height: 78%; max-width: 100%; max-height: 100%; overflow: hidden; }
 .sheet-footer { margin-top: auto; display: flex; justify-content: space-between; color: #8b97a3; font-size: 12px; padding-top: 2mm; }
 .word-paper { padding-top: 16mm; }
 .scallop { position: absolute; left: 0; right: 0; top: 0; height: 15mm; }
