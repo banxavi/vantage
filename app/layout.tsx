@@ -1,10 +1,14 @@
 import { Analytics } from '@vercel/analytics/next'
 import type { Metadata, Viewport } from 'next'
+import { Fredoka, Nunito } from 'next/font/google'
 import './globals.css'
 
+const fredoka = Fredoka({ subsets: ['latin', 'vietnamese'], weight: ['500', '600', '700'], variable: '--font-display' })
+const nunito = Nunito({ subsets: ['latin', 'vietnamese'], weight: ['700', '800'], variable: '--font-trace' })
+
 export const metadata: Metadata = {
-  title: 'Vở Xinh — Tạo phiếu tập viết',
-  description: 'Công cụ tạo và in phiếu luyện viết chữ ô ly cho học sinh tiểu học.',
+  title: 'Vở Xinh — Vở ô ly luyện viết từ',
+  description: 'Tạo và in vở ô ly luyện viết chữ cái, từ vựng cho học sinh lớp 1.',
   generator: 'v0.app',
   icons: {
     icon: [
@@ -40,7 +44,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="vi">
-      <body className="antialiased">
+      <body className={`${fredoka.variable} ${nunito.variable} antialiased`}>
         {children}
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
