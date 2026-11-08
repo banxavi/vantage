@@ -1,9 +1,9 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { BookOpen, ChevronDown, Plus, Printer, RotateCcw, Sparkles, Trash2 } from 'lucide-react'
+import { BookOpen, Plus, Printer, RotateCcw, Sparkles, Trash2 } from 'lucide-react'
 import { cloneLessons, starterLessons, type Lesson } from '@/lib/lessons'
-import { CoverSheet, LetterSheet, pagesFor, WordSheet } from '@/components/workbook-pages'
+import { CoverSheet, LetterSheet, pagesFor, WordSheet, type TraceStyle } from '@/components/workbook-pages'
 
 const sample = {
   title: 'Luyện viết từ',
@@ -27,9 +27,10 @@ export function WorksheetGenerator() {
   const [lessons, setLessons] = useState<Lesson[]>(() => cloneLessons())
   const [activeId, setActiveId] = useState(starterLessons[0].id)
   const [scope, setScope] = useState<'unit' | 'book'>('unit')
-  const [solid, setSolid] = useState(false)
+  const [fontStyle, setFontStyle] = useState<TraceStyle>('fireworks')
   const [zoom, setZoom] = useState<'fit' | 'actual'>('fit')
   const [fitScale, setFitScale] = useState(1)
+  const [lessonQuery, setLessonQuery] = useState('')
   const stackRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -101,7 +102,8 @@ export function WorksheetGenerator() {
     setLessons(cloneLessons())
     setActiveId(starterLessons[0].id)
     setScope('unit')
-    setSolid(false)
+    setFontStyle('fireworks')
+    setLessonQuery('')
   }
 
   return (
@@ -125,7 +127,7 @@ export function WorksheetGenerator() {
             <span>Tô chữ, viết từ</span>
             <em>trên ô ly.</em>
           </h1>
-          <p className="intro">Mỗi bài có trang chữ cái và trang từ vựng, kẻ ô ly 5 dòng, in được cả vở.</p>
+          <p className="intro">26 bài sẵn từ A đến Z. Chọn một unit, hoặc in cả vở.</p>
 
           <section className="control-section">
             <div className="section-heading">
@@ -152,10 +154,22 @@ export function WorksheetGenerator() {
                 Cả vở
               </button>
             </div>
+            <label className="field lesson-search">
+              <span>Tìm bài có sẵn</span>
+              <input
+                value={lessonQuery}
+                onChange={(event) => setLessonQuery(event.target.value)}
+                placeholder="Chữ, chủ đề hoặc từ. Ví dụ: K, zoo"
+              />
+            </label>
             <div className="unit-list">
-              {lessons.map((lesson, index) => (
+              {lessons.map((lesson, index) => ({ lesson, index })).filter(({ lesson }) => {
+                const haystack = `${lesson.letter} ${lesson.theme} ${lesson.focus} ${lesson.words.join(' ')}`.toLowerCase()
+                return haystack.includes(lessonQuery.trim().toLowerCase())
+              }).map(({ lesson, index }) => (
                 <button type="button" key={lesson.id} className={lesson.id === active.id ? 'unit-item on' : 'unit-item'} onClick={() => setActiveId(lesson.id)}>
                   <em>Unit {index + 1}</em>
+                  <strong>{lesson.letter.trim().charAt(0).toUpperCase()}</strong>
                   <span>{lesson.theme}</span>
                 </button>
               ))}
@@ -165,16 +179,20 @@ export function WorksheetGenerator() {
               <Field label="Chữ cái" value={active.letter} onChange={(letter) => update({ letter: letter.slice(0, 2) })} placeholder="B" />
               <Field label="Từ trọng tâm" value={active.focus} onChange={(focus) => update({ focus })} placeholder="book" />
             </div>
-            <label className="field">
-              <span>Kiểu chữ tô</span>
-              <div className="select-wrap">
-                <select value={solid ? 'solid' : 'dotted'} onChange={(event) => setSolid(event.target.value === 'solid')}>
-                  <option value="dotted">Nét đứt — Tập tô</option>
-                  <option value="solid">Nét liền — Chữ mẫu</option>
-                </select>
-                <ChevronDown size={16} />
+            <div className="field">
+              <span>Kiểu nét / Mẫu chữ</span>
+              <div className="scope-switch three-cols" role="tablist">
+                <button type="button" className={fontStyle === 'fireworks' ? 'on' : ''} onClick={() => setFontStyle('fireworks')}>
+                  Chấm sao
+                </button>
+                <button type="button" className={fontStyle === 'dashed' ? 'on' : ''} onClick={() => setFontStyle('dashed')}>
+                  Nét đứt
+                </button>
+                <button type="button" className={fontStyle === 'solid' ? 'on' : ''} onClick={() => setFontStyle('solid')}>
+                  Chữ rỗng
+                </button>
               </div>
-            </label>
+            </div>
             <label className="field">
               <span>Từ luyện thêm, mỗi từ một dòng</span>
               <textarea value={active.words.join('\n')} onChange={(event) => update({ words: event.target.value.split('\n') })} rows={4} />
@@ -227,10 +245,10 @@ export function WorksheetGenerator() {
             }
             pageNo += 1
             if (page.node === 'letter' && page.lesson) {
-              return <LetterSheet key={page.key} lesson={page.lesson} unitNo={page.unitNo} pageNo={pageNo} student={student} className={className} solid={solid} />
+              return <LetterSheet key={page.key} lesson={page.lesson} unitNo={page.unitNo} pageNo={pageNo} student={student} className={className} fontStyle={fontStyle} />
             }
             if (page.node === 'words' && page.lesson) {
-              return <WordSheet key={page.key} lesson={page.lesson} unitNo={page.unitNo} pageNo={pageNo} words={page.words ?? []} student={student} className={className} solid={solid} />
+              return <WordSheet key={page.key} lesson={page.lesson} unitNo={page.unitNo} pageNo={pageNo} words={page.words ?? []} student={student} className={className} fontStyle={fontStyle} />
             }
             return null
           })}
