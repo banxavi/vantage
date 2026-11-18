@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { BookOpen, Plus, Printer, RotateCcw, Sparkles, Trash2 } from 'lucide-react'
 import { cloneLessons, starterLessons, type Lesson } from '@/lib/lessons'
 import { CoverSheet, LetterSheet, pagesFor, WordSheet, type TraceStyle } from '@/components/workbook-pages'
+import type { WritingSize } from '@/lib/oliy'
 
 const sample = {
   title: 'Luyện viết từ',
@@ -28,6 +29,8 @@ export function WorksheetGenerator() {
   const [activeId, setActiveId] = useState(starterLessons[0].id)
   const [scope, setScope] = useState<'unit' | 'book'>('unit')
   const [fontStyle, setFontStyle] = useState<TraceStyle>('fireworks')
+  const [writingSize, setWritingSize] = useState<WritingSize>('vua')
+  const [sizeOpen, setSizeOpen] = useState(false)
   const [zoom, setZoom] = useState<'fit' | 'actual'>('fit')
   const [fitScale, setFitScale] = useState(1)
   const [lessonQuery, setLessonQuery] = useState('')
@@ -51,16 +54,10 @@ export function WorksheetGenerator() {
     const hideChrome = () => {
       document.documentElement.dataset.printTitle = document.title
       document.title = '\u00A0'
-      document.querySelectorAll<HTMLElement>('.cover-sheet').forEach((node) => {
-        node.style.setProperty('display', 'none', 'important')
-      })
     }
     const restoreChrome = () => {
       const title = document.documentElement.dataset.printTitle
       if (title) document.title = title
-      document.querySelectorAll<HTMLElement>('.cover-sheet').forEach((node) => {
-        node.style.removeProperty('display')
-      })
     }
     window.addEventListener('beforeprint', hideChrome)
     window.addEventListener('afterprint', restoreChrome)
@@ -103,6 +100,7 @@ export function WorksheetGenerator() {
     setActiveId(starterLessons[0].id)
     setScope('unit')
     setFontStyle('fireworks')
+    setWritingSize('vua')
     setLessonQuery('')
   }
 
@@ -127,7 +125,7 @@ export function WorksheetGenerator() {
             <span>Tô chữ, viết từ</span>
             <em>trên ô ly.</em>
           </h1>
-          <p className="intro">26 bài sẵn từ A đến Z. Chọn một unit, hoặc in cả vở.</p>
+          <p className="intro">29 chữ tiếng Việt và một bài số. Chọn một bài, hoặc in cả vở.</p>
 
           <section className="control-section">
             <div className="section-heading">
@@ -159,7 +157,7 @@ export function WorksheetGenerator() {
               <input
                 value={lessonQuery}
                 onChange={(event) => setLessonQuery(event.target.value)}
-                placeholder="Chữ, chủ đề hoặc từ. Ví dụ: K, zoo"
+                placeholder="Chữ, chủ đề hoặc từ. Ví dụ: ă, bê"
               />
             </label>
             <div className="unit-list">
@@ -168,7 +166,7 @@ export function WorksheetGenerator() {
                 return haystack.includes(lessonQuery.trim().toLowerCase())
               }).map(({ lesson, index }) => (
                 <button type="button" key={lesson.id} className={lesson.id === active.id ? 'unit-item on' : 'unit-item'} onClick={() => setActiveId(lesson.id)}>
-                  <em>Unit {index + 1}</em>
+                  <em>Bài {index + 1}</em>
                   <strong>{lesson.letter.trim().charAt(0).toUpperCase()}</strong>
                   <span>{lesson.theme}</span>
                 </button>
@@ -176,7 +174,7 @@ export function WorksheetGenerator() {
             </div>
             <Field label="Chủ đề" value={active.theme} onChange={(theme) => update({ theme })} />
             <div className="two-fields">
-              <Field label="Chữ cái" value={active.letter} onChange={(letter) => update({ letter: letter.slice(0, 2) })} placeholder="B" />
+              <Field label="Chữ cái" value={active.letter} onChange={(letter) => update({ letter })} placeholder="ă" />
               <Field label="Từ trọng tâm" value={active.focus} onChange={(focus) => update({ focus })} placeholder="book" />
             </div>
             <div className="field">
@@ -218,7 +216,7 @@ export function WorksheetGenerator() {
         <div className="sidebar-footer">
           <span className="status-dot" />
           {pages.length} trang A4
-          <span className="footer-version">Ô ly 5 dòng</span>
+          <span className="footer-version">Ô 5 mm · {writingSize === 'vua' ? 'cỡ vừa' : 'cỡ nhỏ'}</span>
         </div>
       </aside>
 
@@ -226,31 +224,42 @@ export function WorksheetGenerator() {
         <div className="preview-toolbar">
           <div>
             <span className="preview-label">XEM TRƯỚC</span>
-            <span className="preview-title">{scope === 'book' ? 'Cả vở' : `Unit ${lessons.findIndex((lesson) => lesson.id === active.id) + 1}`}</span>
+            <span className="preview-title">{scope === 'book' ? 'Cả vở' : `Bài ${lessons.findIndex((lesson) => lesson.id === active.id) + 1}`}</span>
           </div>
           <div className="zoom-switch" role="group" aria-label="Cỡ xem">
             <button type="button" className={zoom === 'fit' ? 'on' : ''} onClick={() => setZoom('fit')}>
               Vừa màn hình
             </button>
-            <button type="button" className={zoom === 'actual' ? 'on' : ''} onClick={() => setZoom('actual')}>
+            <button type="button" className={sizeOpen ? 'on' : ''} aria-expanded={sizeOpen} onClick={() => setSizeOpen((open) => !open)}>
               Cỡ in
             </button>
           </div>
+          {sizeOpen ? (
+            <div className="size-menu" role="menu">
+              <button type="button" className={writingSize === 'vua' ? 'on' : ''} onClick={() => { setWritingSize('vua'); setZoom('actual'); setSizeOpen(false) }}>
+                Cỡ vừa · 1 đơn vị = 2 ô
+              </button>
+              <button type="button" className={writingSize === 'nho' ? 'on' : ''} onClick={() => { setWritingSize('nho'); setZoom('actual'); setSizeOpen(false) }}>
+                Cỡ nhỏ · 1 đơn vị = 1 ô
+              </button>
+              <p>Khổ A4 · {pages.length} trang</p>
+            </div>
+          ) : null}
           <div className="a4-badge">A4 · {pages.length} trang</div>
         </div>
         <div className="paper-stack" ref={stackRef} style={{ ['--page-scale' as string]: pageScale }}>
           {pages.map((page) => {
+            let node = null
             if (page.node === 'cover') {
-              return <CoverSheet key={page.key} title={title} student={student} className={className} lessons={lessons} />
+              node = <CoverSheet title={title} student={student} className={className} lessons={lessons} focusId={scope === 'unit' ? active.id : undefined} />
+            } else if (page.node === 'letter' && page.lesson) {
+              pageNo += 1
+              node = <LetterSheet lesson={page.lesson} unitNo={page.unitNo} pageNo={pageNo} student={student} className={className} fontStyle={fontStyle} writingSize={writingSize} />
+            } else if (page.node === 'words' && page.lesson) {
+              pageNo += 1
+              node = <WordSheet lesson={page.lesson} unitNo={page.unitNo} pageNo={pageNo} words={page.words ?? []} student={student} className={className} fontStyle={fontStyle} writingSize={writingSize} />
             }
-            pageNo += 1
-            if (page.node === 'letter' && page.lesson) {
-              return <LetterSheet key={page.key} lesson={page.lesson} unitNo={page.unitNo} pageNo={pageNo} student={student} className={className} fontStyle={fontStyle} />
-            }
-            if (page.node === 'words' && page.lesson) {
-              return <WordSheet key={page.key} lesson={page.lesson} unitNo={page.unitNo} pageNo={pageNo} words={page.words ?? []} student={student} className={className} fontStyle={fontStyle} />
-            }
-            return null
+            return node ? <div className="page-frame" key={page.key}>{node}</div> : null
           })}
         </div>
       </section>
