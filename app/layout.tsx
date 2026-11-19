@@ -44,7 +44,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="vi">
-      <body className={`${fredoka.variable} ${nunito.variable} antialiased`}>
+      <body className={`${fredoka.variable} ${nunito.variable} antialiased`} suppressHydrationWarning>
         {children}
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>

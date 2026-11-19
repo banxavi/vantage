@@ -67,10 +67,12 @@ function TraceText({
   const boxH = 80
   const dotted = !model && fontStyle === 'fireworks'
   const dashed = !model && fontStyle === 'dashed'
-  const ink = model ? '#2a67d8' : dotted ? '#8f9eac' : '#8b98a6'
+  const modelH = Math.max(boxH, laid.bottom) - Math.min(0, laid.top) + 8
+  const ink = model ? 'var(--trace-model)' : dotted ? '#8f9eac' : 'var(--trace-fill)'
   const viewBox = model
-    ? `${-4} ${Math.min(0, laid.top) - 4} ${boxW + 12} ${Math.max(boxH, laid.bottom) - Math.min(0, laid.top) + 8}`
+    ? `${-4} ${Math.min(0, laid.top) - 4} ${boxW + 12} ${modelH}`
     : `0 0 ${boxW} ${boxH}`
+  const strokeWidth = model ? 4.6 * (modelH / 68) : dotted ? 1.7 : 2.1
   const markerId = useId().replace(/:/g, '')
   const cues = model
     ? laid.parts.flatMap((part) => strokeCues(part.d).map((cue) => ({ ...cue, ox: part.x, oy: part.y })))
@@ -90,7 +92,14 @@ function TraceText({
           </marker>
         </defs>
       ) : null}
-      <g fill="none" stroke={ink} strokeWidth={model ? 3.3 : dotted ? 1.7 : 2.1} strokeLinecap="round" strokeLinejoin="round" strokeDasharray={dotted ? '0.2 3.1' : dashed ? '3.6 2.2' : undefined}>
+      {dashed ? (
+        <g fill="none" stroke="var(--trace-ghost)" strokeWidth="var(--trace-ghost-width)" strokeLinecap="round" strokeLinejoin="round">
+          {laid.parts.map((part) => (
+            <path key={`ghost-${part.x}-${part.y}`} d={part.d} transform={`translate(${part.x} ${part.y})`} />
+          ))}
+        </g>
+      ) : null}
+      <g fill="none" stroke={dashed ? 'var(--trace-dash)' : ink} strokeWidth={dashed ? 'var(--trace-dash-width)' : strokeWidth} strokeLinecap="round" strokeLinejoin="round" strokeDasharray={dotted ? '0.2 3.1' : dashed ? 'var(--trace-dasharray)' : undefined}>
         {laid.parts.map((part) => (
           <path key={`${part.x}-${part.y}-${part.d.slice(0, 12)}`} d={part.d} transform={`translate(${part.x} ${part.y})`} />
         ))}

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { BookOpen, Plus, Printer, RotateCcw, Sparkles, Trash2 } from 'lucide-react'
+import { suggestWords } from '@/lib/vn-dictionary'
 import { cloneLessons, starterLessons, type Lesson } from '@/lib/lessons'
 import { CoverSheet, LetterSheet, pagesFor, WordSheet, type TraceStyle } from '@/components/workbook-pages'
 import type { WritingSize } from '@/lib/oliy'
@@ -34,6 +35,7 @@ export function WorksheetGenerator() {
   const [zoom, setZoom] = useState<'fit' | 'actual'>('fit')
   const [fitScale, setFitScale] = useState(1)
   const [lessonQuery, setLessonQuery] = useState('')
+  const [dictQuery, setDictQuery] = useState('')
   const stackRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -79,7 +81,7 @@ export function WorksheetGenerator() {
 
   const addLesson = () => {
     const id = crypto.randomUUID()
-    setLessons((current) => [...current, { id, theme: 'Chủ đề mới', letter: 'A', focus: 'ant', words: ['ant'] }])
+    setLessons((current) => [...current, { id, theme: 'Chủ đề mới', letter: 'a', focus: 'ba', words: ['cá'] }])
     setActiveId(id)
     setScope('unit')
   }
@@ -102,6 +104,15 @@ export function WorksheetGenerator() {
     setFontStyle('fireworks')
     setWritingSize('vua')
     setLessonQuery('')
+    setDictQuery('')
+  }
+
+  const sameWord = (left: string, right: string) => left.trim().toLocaleLowerCase('vi') === right.trim().toLocaleLowerCase('vi')
+  const chosenWords = active.words.map((word) => word.trim()).filter(Boolean)
+  const suggestions = suggestWords(active.letter, dictQuery)
+  const toggleWord = (word: string) => {
+    const has = chosenWords.some((item) => sameWord(item, word))
+    update({ words: has ? chosenWords.filter((item) => !sameWord(item, word)) : [...chosenWords, word] })
   }
 
   return (
@@ -175,7 +186,7 @@ export function WorksheetGenerator() {
             <Field label="Chủ đề" value={active.theme} onChange={(theme) => update({ theme })} />
             <div className="two-fields">
               <Field label="Chữ cái" value={active.letter} onChange={(letter) => update({ letter })} placeholder="ă" />
-              <Field label="Từ trọng tâm" value={active.focus} onChange={(focus) => update({ focus })} placeholder="book" />
+              <Field label="Từ trọng tâm" value={active.focus} onChange={(focus) => update({ focus })} placeholder="ba" />
             </div>
             <div className="field">
               <span>Kiểu nét / Mẫu chữ</span>
@@ -195,6 +206,25 @@ export function WorksheetGenerator() {
               <span>Từ luyện thêm, mỗi từ một dòng</span>
               <textarea value={active.words.join('\n')} onChange={(event) => update({ words: event.target.value.split('\n') })} rows={4} />
             </label>
+            <label className="field lesson-search">
+              <span>Từ điển sẵn</span>
+              <input
+                value={dictQuery}
+                onChange={(event) => setDictQuery(event.target.value)}
+                placeholder="Tìm từ. Ví dụ: mẹ, hoa"
+              />
+            </label>
+            <p className="dict-note">{dictQuery.trim() ? `${suggestions.length} từ khớp` : `Từ có chữ ${active.letter.trim().charAt(0).toLocaleLowerCase('vi') || 'a'}`}</p>
+            <div className="dict-chips">
+              {suggestions.map((word) => {
+                const on = chosenWords.some((item) => sameWord(item, word))
+                return (
+                  <button type="button" key={word} className={on ? 'on' : ''} aria-pressed={on} onClick={() => toggleWord(word)}>
+                    {word}
+                  </button>
+                )
+              })}
+            </div>
             <div className="inline-actions">
               <button type="button" onClick={addLesson}>
                 <Plus size={14} /> Thêm bài
